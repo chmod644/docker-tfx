@@ -17,6 +17,17 @@ RUN apt-get update && apt-get install -y \
         && apt-get clean \
         && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && apt-get install -y \
+        python3.7-dev \
+        python3-pip \
+        python3-setuptools \
+        python3-virtualenv \
+        python3-wheel \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
+
 RUN pip install -U --no-cache-dir \
         apache-airflow \
         flask==1.0.4 \
@@ -36,3 +47,14 @@ RUN pip install -U --no-cache-dir \
         papermill \
         networkx \
         requests==2.20.1
+
+# For workshop
+RUN pip install -U --no-cache-dir \
+        grpcio-tools
+
+RUN mkdir /root/tfx
+RUN git clone https://github.com/tensorflow/tfx.git /root/tfx/tfx
+WORKDIR /root/tfx/tfx/tfx/examples/workshop/setup
+RUN ./setup_demo.sh
+ENV PYTHONPATH /root/tfx/tfx
+RUN python -m grpc_tools.protoc -I/root/tfx/tfx/tfx/proto/ --python_out=/root/tfx/tfx/tfx/proto/ --grpc_python_out=/root/tfx/tfx/tfx/proto/ /root/tfx/tfx/tfx/proto/*proto
