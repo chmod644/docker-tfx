@@ -53,8 +53,11 @@ RUN pip install -U --no-cache-dir \
         grpcio-tools
 
 RUN mkdir /root/tfx
-RUN git clone https://github.com/tensorflow/tfx.git /root/tfx/tfx
+RUN git clone -b r0.13 https://github.com/tensorflow/tfx.git /root/tfx/tfx
 WORKDIR /root/tfx/tfx/tfx/examples/workshop/setup
 RUN ./setup_demo.sh
-ENV PYTHONPATH /root/tfx/tfx
-RUN python -m grpc_tools.protoc -I/root/tfx/tfx/tfx/proto/ --python_out=/root/tfx/tfx/tfx/proto/ --grpc_python_out=/root/tfx/tfx/tfx/proto/ /root/tfx/tfx/tfx/proto/*proto
+
+WORKDIR /root
+ADD run_workers.sh /root
+
+CMD ["/root/run_workers.sh"]
